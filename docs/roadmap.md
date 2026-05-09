@@ -22,19 +22,19 @@ Convenção:
 
 ## Fase 0 — Fundação
 
-### [ ] T0.1 — Estrutura de módulos inicial (`lib.rs` + `main.rs`)
+### [x] T0.1 — Estrutura de módulos inicial (`lib.rs` + `main.rs`)
 - **Objetivo**: organizar `src/` em módulos vazios que vão ser preenchidos depois.
 - 🦀 `mod`, `pub`, árvore de módulos, `main.rs` vs `lib.rs`.
 - 🎯 `cargo build` compila com `lib.rs` declarando módulos `commands`, `state`, `ui` (mesmo vazios) e `main.rs` apenas chamando uma função pública da lib.
 - 💡 **Por que `lib.rs` desde já**: doc-tests (T16.4) **só rodam em código de biblioteca**. Separar lógica em `lib.rs` desde o início evita refactor depois e é o padrão idiomático para projetos com binário + lógica testável.
 - 📚 Cap. 7 — Managing Growing Projects; Cap. 12.3 — Refactoring to Improve Modularity.
 
-### [ ] T0.2 — Hello, employee
+### [x] T0.2 — Hello, employee
 - **Objetivo**: imprimir uma mensagem de boas-vindas no `main`.
 - 🦀 `println!`, macros vs funções, string literais (`&'static str`).
 - 🎯 `cargo run` imprime uma linha estilo corporativo.
 
-### [ ] T0.3 — `rustfmt` + `clippy`
+### [x] T0.3 — `rustfmt` + `clippy`
 - **Objetivo**: rodar formatador e linter desde o primeiro código, antes de criar maus hábitos.
 - 🦀 ferramental do toolchain Rust, anatomia de um warning de clippy.
 - 🎯 `cargo fmt --check` passa; `cargo clippy -- -D warnings` passa sem warnings.
