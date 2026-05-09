@@ -3,5 +3,9 @@ pub mod state;
 pub mod ui;
 
 pub fn run() {
-    println!("Starting Lethal Company CLI...");
+    println!(
+        "[CORP-OS v{}] BOOT SEQUENCE COMPLETE. DAILY QUOTA NOT YET MET.",
+        env!("CARGO_PKG_VERSION")
+    );
+    println!("[COMPANY MAINFRAME] EMPLOYEE TERMINAL ONLINE - WELCOME.");
 }
