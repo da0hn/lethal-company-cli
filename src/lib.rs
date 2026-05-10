@@ -1,4 +1,4 @@
-use crate::commands::{LoopAction, dispatch, parse};
+use commands::{LoopAction, dispatch, parse};
 use std::io::{self, BufRead, Write};
 
 pub mod commands;
@@ -31,11 +31,8 @@ pub fn run() {
             .read_line(&mut input)
             .expect("[ERROR] Failed to read stdin");
 
-        let command = parse(input.trim());
-
-        match dispatch(command) {
-            LoopAction::Continue => continue,
-            LoopAction::Exit => break,
+        if let LoopAction::Exit = dispatch(parse(input.trim())) {
+            break;
         }
     }
 }

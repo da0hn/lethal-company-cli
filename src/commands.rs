@@ -57,3 +57,58 @@ fn print_help() {
         println!("   {name:<10}   {description}");
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_help_returns_help() {
+        assert_eq!(parse("help"), Command::Help);
+    }
+
+    #[test]
+    fn parse_exit_returns_exit() {
+        assert_eq!(parse("exit"), Command::Exit);
+    }
+
+    #[test]
+    fn parse_strips_whitespace_around_all_commands() {
+        assert_eq!(parse("   help   "), Command::Help);
+        assert_eq!(parse("exit   "), Command::Exit);
+        assert_eq!(parse("clear   "), Command::Clear);
+        assert!(matches!(
+            parse("   unknown_command   "),
+            Command::Unknown(_)
+        ));
+        assert_eq!(parse("   "), Command::Empty);
+    }
+
+    #[test]
+    fn parse_unknown_command() {
+        assert!(matches!(parse("xyz"), Command::Unknown(_)));
+    }
+
+    #[test]
+    fn parse_empty_returns_empty() {
+        assert_eq!(parse(""), Command::Empty);
+        assert_eq!(parse("\t\t\t"), Command::Empty);
+    }
+
+    #[test]
+    fn parse_only_first_token_matters() {
+        assert_eq!(parse("help me"), Command::Help);
+        assert_eq!(parse("exit this"), Command::Exit);
+        assert_eq!(parse("clear all"), Command::Clear);
+    }
+
+    #[test]
+    fn dispatch_exit_returns_loop_exit() {
+        assert_eq!(dispatch(Command::Exit), LoopAction::Exit);
+    }
+
+    #[test]
+    fn dispatch_help_returns_loop_continue() {
+        assert_eq!(dispatch(Command::Help), LoopAction::Continue);
+    }
+}
