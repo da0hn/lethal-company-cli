@@ -64,34 +64,34 @@ Convenção:
 
 ## Fase 2 — Sistema de comandos (feature 3)
 
-### [ ] T2.1 — Enum `Command`
+### [x] T2.1 — Enum `Command`
 - **Objetivo**: modelar comandos como enum com variantes (`Help`, `Exit`, `Clear`, `Unknown(String)`).
 - 🦀 `enum`, variantes com dados, `derive(Debug)`.
 - 🎯 enum compila e pode ser usada com `match` exaustivo.
 - 📚 Cap. 6 — Enums and Pattern Matching.
 
-### [ ] T2.2 — Parser `&str -> Command`
+### [x] T2.2 — Parser `&str -> Command`
 - **Objetivo**: função pura que converte uma linha em `Command`.
 - 🦀 `str::split_whitespace`, `match`, retorno por valor (ownership).
 - 🎯 `parse("help")` → `Command::Help`; `parse("xyz")` → `Command::Unknown(...)`.
 
-### [ ] T2.3 — Dispatcher
+### [x] T2.3 — Dispatcher
 - **Objetivo**: função que recebe `Command` e executa o comportamento.
 - 🦀 `match` exaustivo, exhaustiveness checking do compilador.
 - 🎯 cada variante imprime algo distinto; `Unknown` mostra mensagem corporativa de erro.
 
-### [ ] T2.4 — Comando `help`
+### [x] T2.4 — Comando `help`
 - **Objetivo**: listar comandos disponíveis.
 - 🦀 arrays `[&str; N]` ou `&[&str]`, iteração com `for`.
 - 🎯 `help` imprime lista alinhada de comandos com 1 linha de descrição cada.
 
-### [ ] 🧪 T2.5 — Primeiros testes unitários do parser
+### [x] 🧪 T2.5 — Primeiros testes unitários do parser
 - **Objetivo**: cobrir o parser `&str -> Command` com `cargo test`.
 - 🦀 `#[cfg(test)] mod tests`, `#[test]`, `assert_eq!`, `assert!(matches!(...))`, derive `PartialEq` em `Command`.
 - 🎯 ao menos 4 casos: `help`, `exit`, com espaços extras, e `Unknown` para input inválido. `cargo test` passa verde.
 - 📚 Cap. 11.1 — How to Write Tests.
 
-### [ ] T2.6 — Comandos com argumentos
+### [x] T2.6 — Comandos com argumentos
 - **Objetivo**: evoluir o `enum Command` para suportar argumentos (ex.: `Command::Buy(String)`, `Command::Route(String)`), preparando o terreno para `buy`, `route` e `travel`.
 - 🦀 variantes de enum com dados associados, refactor guiado pelo compilador (exhaustiveness checking força atualizar todos os `match`), `String` vs `&str` na escolha de ownership da variante.
 - 🎯 parser passa a reconhecer `buy lantern` → `Command::Buy("lantern".into())`; argumentos faltando viram `Command::Unknown(...)` ou variante específica de erro; testes de T2.5 atualizados para cobrir o caso com argumento.

@@ -1,3 +1,4 @@
+use commands::{LoopAction, dispatch, parse};
 use std::io::{self, BufRead, Write};
 
 pub mod commands;
@@ -29,13 +30,9 @@ pub fn run() {
             .lock()
             .read_line(&mut input)
             .expect("[ERROR] Failed to read stdin");
-        let cmd = input.trim();
 
-        match cmd {
-            "exit" => break,
-            "clear" => println!("\x1B[2J\x1B[1;1H"),
-            "" => continue,
-            other => println!("[ECHO] {other}"),
+        if let LoopAction::Exit = dispatch(parse(input.trim())) {
+            break;
         }
     }
 }
