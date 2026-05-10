@@ -44,18 +44,18 @@ Convenção:
 
 ## Fase 1 — Boot e REPL básico (features 1, 2)
 
-### [ ] T1.1 — Splash screen
+### [x] T1.1 — Splash screen
 - **Objetivo**: imprimir nome da corporação, versão e mensagem inicial.
 - 🦀 constantes (`const`), `env!("CARGO_PKG_VERSION")`, formatação com `{}`.
 - 🎯 ao iniciar, aparece bloco fixo com 4–5 linhas.
 
-### [ ] T1.2 — Loop de prompt (REPL)
+### [x] T1.2 — Loop de prompt (REPL)
 - **Objetivo**: ler linha do `stdin`, ecoar de volta, repetir até o usuário digitar `exit`.
 - 🦀 `std::io::{self, BufRead, Write}`, `stdout().flush()`, `String::trim`, `loop`, `break`.
 - 🎯 prompt `> ` aparece, qualquer texto é ecoado, `exit` encerra.
 - 📚 Cap. 2 — Programming a Guessing Game (similaridade de I/O).
 
-### [ ] T1.3 — Comando `exit` e `clear`
+### [x] T1.3 — Comando `exit` e `clear`
 - **Objetivo**: tratar dois comandos hardcoded antes de generalizar.
 - 🦀 `match` em `&str`.
 - 🎯 `exit` sai, `clear` limpa tela (pode ser `print!("\x1B[2J\x1B[H")`).
