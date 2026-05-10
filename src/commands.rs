@@ -9,8 +9,10 @@ pub enum Command {
     Help,
     Exit,
     Clear,
-    Unknown(String),
     Empty,
+    Buy(String),
+    InvalidUsage(String),
+    Unknown(String),
 }
 
 #[derive(Debug, PartialEq)]
@@ -20,12 +22,15 @@ pub enum LoopAction {
 }
 
 pub fn parse(input: &str) -> Command {
-    match input.split_whitespace().next() {
-        Some("help") => Command::Help,
-        Some("exit") => Command::Exit,
-        Some("clear") => Command::Clear,
-        Some(other) => Command::Unknown(other.into()),
-        None => Command::Empty,
+    let mut parts = input.split_whitespace();
+    match (parts.next(), parts.next()) {
+        (Some("buy"), Some(item)) => Command::Buy(item.into()),
+        (Some("buy"), None) => Command::InvalidUsage("buy".into()),
+        (Some("help"), _) => Command::Help,
+        (Some("exit"), _) => Command::Exit,
+        (Some("clear"), _) => Command::Clear,
+        (Some(other), _) => Command::Unknown(other.into()),
+        (None, _) => Command::Empty,
     }
 }
 
@@ -45,6 +50,14 @@ pub fn dispatch(command: Command) -> LoopAction {
             LoopAction::Continue
         }
         Command::Empty => LoopAction::Continue,
+        Command::Buy(item) => {
+            println!("[STORE] PURCHASE REQUEST: {item} (NOT IMPLEMENTED YET)");
+            LoopAction::Continue
+        }
+        Command::InvalidUsage(cmd) => {
+            println!("[ALERT] INVALID USAGE: {cmd} <argument>");
+            LoopAction::Continue
+        }
     }
 }
 
@@ -100,6 +113,16 @@ mod tests {
         assert_eq!(parse("help me"), Command::Help);
         assert_eq!(parse("exit this"), Command::Exit);
         assert_eq!(parse("clear all"), Command::Clear);
+    }
+
+    #[test]
+    fn parse_buy_with_item_returns_buy() {
+        assert_eq!(parse("buy sword"), Command::Buy("sword".into()));
+    }
+
+    #[test]
+    fn parse_buy_without_item_returns_invalid_usage() {
+        assert_eq!(parse("buy"), Command::InvalidUsage("buy".into()));
     }
 
     #[test]
