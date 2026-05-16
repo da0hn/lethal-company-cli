@@ -103,7 +103,7 @@ Convenção:
 
 > ℹ️ A feature 10 pede estado **persistente durante a execução** — ou seja, vive enquanto o processo está rodando. Persistência em disco (save/load entre sessões) é separada e fica para a Fase 16.
 
-### [ ] T3.1 — Struct `GameState`
+### [x] T3.1 — Struct `GameState`
 - **Objetivo**: criar struct com campos básicos (créditos, dia, planeta atual como `Option<String>`).
 - 🦀 `struct`, `Option<T>`, `Default`, métodos com `impl`.
 - 🎯 `GameState::new()` retorna estado inicial.
