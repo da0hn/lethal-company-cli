@@ -1,7 +1,10 @@
-const COMMANDS: [(&str, &str); 3] = [
+use crate::state::GameState;
+
+const COMMANDS: [(&str, &str); 4] = [
     ("help", "Show this help message"),
     ("exit", "Terminate session"),
     ("clear", "Clear screen"),
+    ("tick", "Advance game day by one"),
 ];
 
 #[derive(Debug, PartialEq)]
@@ -13,6 +16,7 @@ pub enum Command {
     Buy(String),
     InvalidUsage(String),
     Unknown(String),
+    Tick,
 }
 
 #[derive(Debug, PartialEq)]
@@ -29,12 +33,13 @@ pub fn parse(input: &str) -> Command {
         (Some("help"), _) => Command::Help,
         (Some("exit"), _) => Command::Exit,
         (Some("clear"), _) => Command::Clear,
+        (Some("tick"), _) => Command::Tick,
         (Some(other), _) => Command::Unknown(other.into()),
         (None, _) => Command::Empty,
     }
 }
 
-pub fn dispatch(command: Command) -> LoopAction {
+pub fn dispatch(command: Command, state: &mut GameState) -> LoopAction {
     match command {
         Command::Help => {
             print_help();
@@ -56,6 +61,11 @@ pub fn dispatch(command: Command) -> LoopAction {
         }
         Command::InvalidUsage(cmd) => {
             println!("[ALERT] INVALID USAGE: {cmd} <argument>");
+            LoopAction::Continue
+        }
+        Command::Tick => {
+            state.advance_day();
+            println!("[CLOCK] DAY ADVANCED TO {}", state.day());
             LoopAction::Continue
         }
     }
@@ -127,11 +137,27 @@ mod tests {
 
     #[test]
     fn dispatch_exit_returns_loop_exit() {
-        assert_eq!(dispatch(Command::Exit), LoopAction::Exit);
+        let mut state = GameState::new();
+        assert_eq!(dispatch(Command::Exit, &mut state), LoopAction::Exit);
     }
 
     #[test]
     fn dispatch_help_returns_loop_continue() {
-        assert_eq!(dispatch(Command::Help), LoopAction::Continue);
+        let mut state = GameState::new();
+        assert_eq!(dispatch(Command::Help, &mut state), LoopAction::Continue);
+    }
+
+    #[test]
+    fn dispatch_tick_returns_loop_continue() {
+        let mut state = GameState::new();
+        assert_eq!(dispatch(Command::Tick, &mut state), LoopAction::Continue);
+    }
+
+    #[test]
+    fn dispatch_tick_increments_day() {
+        let mut state = GameState::new();
+        let current_day = state.day();
+        dispatch(Command::Tick, &mut state);
+        assert_eq!(state.day(), current_day + 1);
     }
 }

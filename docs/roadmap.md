@@ -109,7 +109,7 @@ Convenção:
 - 🎯 `GameState::new()` retorna estado inicial.
 - 📚 Cap. 5 — Using Structs.
 
-### [ ] T3.2 — Passar estado mutável ao dispatcher
+### [x] T3.2 — Passar estado mutável ao dispatcher
 - **Objetivo**: dispatcher recebe `&mut GameState` para que comandos alterem estado.
 - 🦀 referência mutável `&mut`, regras de borrow (uma só por vez).
 - 🎯 um comando dummy (ex.: `tick`) incrementa `dia`.
