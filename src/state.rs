@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug)]
 pub struct GameState {
     credits: u32,
@@ -37,6 +39,15 @@ impl Default for GameState {
     }
 }
 
+impl fmt::Display for GameState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let location = self.current_planet().unwrap_or("ORBIT");
+        writeln!(f, "{:<10} {} CR", "CREDITS:", self.credits)?;
+        writeln!(f, "{:<10} {}", "DAY:", self.day)?;
+        write!(f, "{:<10} {}", "LOCATION:", location)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -63,5 +74,16 @@ mod tests {
         let current_day = state.day();
         state.advance_day();
         assert_eq!(state.day(), current_day + 1);
+    }
+
+    #[test]
+    fn display_shows_credits_day_and_location() {
+        let state = GameState::new();
+        let output = format!("{state}");
+        assert!(output.contains("CREDITS:"));
+        assert!(output.contains("100 CR"));
+        assert!(output.contains("DAY:"));
+        assert!(output.contains("LOCATION:"));
+        assert!(output.contains("ORBIT"));
     }
 }

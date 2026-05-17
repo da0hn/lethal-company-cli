@@ -115,7 +115,7 @@ Convenção:
 - 🎯 um comando dummy (ex.: `tick`) incrementa `dia`.
 - 📚 Cap. 4 — Understanding Ownership.
 
-### [ ] T3.3 — Comando `status`
+### [x] T3.3 — Comando `status`
 - **Objetivo**: imprimir o estado atual.
 - 🦀 `Display` trait (opcional aqui) ou `Debug`, `{:?}`.
 - 🎯 `status` mostra créditos, dia, planeta atual.

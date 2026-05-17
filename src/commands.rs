@@ -1,10 +1,11 @@
 use crate::state::GameState;
 
-const COMMANDS: [(&str, &str); 4] = [
+const COMMANDS: [(&str, &str); 5] = [
     ("help", "Show this help message"),
     ("exit", "Terminate session"),
     ("clear", "Clear screen"),
     ("tick", "Advance game day by one"),
+    ("status", "Show current game state"),
 ];
 
 #[derive(Debug, PartialEq)]
@@ -17,6 +18,7 @@ pub enum Command {
     InvalidUsage(String),
     Unknown(String),
     Tick,
+    Status,
 }
 
 #[derive(Debug, PartialEq)]
@@ -34,6 +36,7 @@ pub fn parse(input: &str) -> Command {
         (Some("exit"), _) => Command::Exit,
         (Some("clear"), _) => Command::Clear,
         (Some("tick"), _) => Command::Tick,
+        (Some("status"), _) => Command::Status,
         (Some(other), _) => Command::Unknown(other.into()),
         (None, _) => Command::Empty,
     }
@@ -68,6 +71,10 @@ pub fn dispatch(command: Command, state: &mut GameState) -> LoopAction {
             println!("[CLOCK] DAY ADVANCED TO {}", state.day());
             LoopAction::Continue
         }
+        Command::Status => {
+            println!("{state}");
+            LoopAction::Continue
+        }
     }
 }
 
@@ -93,6 +100,16 @@ mod tests {
     #[test]
     fn parse_exit_returns_exit() {
         assert_eq!(parse("exit"), Command::Exit);
+    }
+
+    #[test]
+    fn parse_tick_returns_tick() {
+        assert_eq!(parse("tick"), Command::Tick);
+    }
+
+    #[test]
+    fn parse_status_returns_status() {
+        assert_eq!(parse("status"), Command::Status);
     }
 
     #[test]
@@ -159,5 +176,11 @@ mod tests {
         let current_day = state.day();
         dispatch(Command::Tick, &mut state);
         assert_eq!(state.day(), current_day + 1);
+    }
+
+    #[test]
+    fn dispatch_status_returns_loop_continue() {
+        let mut state = GameState::new();
+        assert_eq!(dispatch(Command::Status, &mut state), LoopAction::Continue);
     }
 }
