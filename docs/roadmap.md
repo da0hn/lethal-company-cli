@@ -103,19 +103,19 @@ Convenção:
 
 > ℹ️ A feature 10 pede estado **persistente durante a execução** — ou seja, vive enquanto o processo está rodando. Persistência em disco (save/load entre sessões) é separada e fica para a Fase 16.
 
-### [ ] T3.1 — Struct `GameState`
+### [x] T3.1 — Struct `GameState`
 - **Objetivo**: criar struct com campos básicos (créditos, dia, planeta atual como `Option<String>`).
 - 🦀 `struct`, `Option<T>`, `Default`, métodos com `impl`.
 - 🎯 `GameState::new()` retorna estado inicial.
 - 📚 Cap. 5 — Using Structs.
 
-### [ ] T3.2 — Passar estado mutável ao dispatcher
+### [x] T3.2 — Passar estado mutável ao dispatcher
 - **Objetivo**: dispatcher recebe `&mut GameState` para que comandos alterem estado.
 - 🦀 referência mutável `&mut`, regras de borrow (uma só por vez).
 - 🎯 um comando dummy (ex.: `tick`) incrementa `dia`.
 - 📚 Cap. 4 — Understanding Ownership.
 
-### [ ] T3.3 — Comando `status`
+### [x] T3.3 — Comando `status`
 - **Objetivo**: imprimir o estado atual.
 - 🦀 `Display` trait (opcional aqui) ou `Debug`, `{:?}`.
 - 🎯 `status` mostra créditos, dia, planeta atual.

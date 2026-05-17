@@ -1,4 +1,5 @@
 use commands::{LoopAction, dispatch, parse};
+use state::GameState;
 use std::io::{self, BufRead, Write};
 
 pub mod commands;
@@ -18,6 +19,8 @@ pub fn run() {
     let stdin = io::stdin();
     let mut input = String::new();
 
+    let mut state = GameState::new();
+
     loop {
         print!("> ");
         io::stdout()
@@ -31,7 +34,7 @@ pub fn run() {
             .read_line(&mut input)
             .expect("[ERROR] Failed to read stdin");
 
-        if let LoopAction::Exit = dispatch(parse(input.trim())) {
+        if let LoopAction::Exit = dispatch(parse(input.trim()), &mut state) {
             break;
         }
     }
