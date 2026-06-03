@@ -1,10 +1,6 @@
+use std::error::Error;
 use std::fmt;
-
-#[derive(Debug, PartialEq)]
-pub enum WalletError {
-    InsufficientFunds { available: u32, requested: u32 },
-    Overflow,
-}
+use std::fmt::Formatter;
 
 #[derive(Debug)]
 pub struct GameState {
@@ -76,6 +72,36 @@ impl fmt::Display for GameState {
         write!(f, "{:<10} {}", "LOCATION:", location)
     }
 }
+
+#[derive(Debug, PartialEq)]
+pub enum WalletError {
+    InsufficientFunds { available: u32, requested: u32 },
+    Overflow,
+}
+
+impl fmt::Display for WalletError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            WalletError::InsufficientFunds {
+                available,
+                requested,
+            } => {
+                write!(
+                    f,
+                    "TRANSACTION DENIED: need {requested} CR, balance {available} CR"
+                )
+            }
+            WalletError::Overflow => {
+                write!(
+                    f,
+                    "TRANSACTION OVERFLOW: credit balance exceeds maximum capacity"
+                )
+            }
+        }
+    }
+}
+
+impl Error for WalletError {}
 
 #[cfg(test)]
 mod tests {
@@ -152,5 +178,11 @@ mod tests {
         let result = state.spend_credits(10);
         assert!(result.is_ok());
         assert_eq!(state.credits(), 90);
+    }
+
+    #[test]
+    fn wallet_error_converts_to_boxed_error() {
+        let e = WalletError::Overflow;
+        let _boxed: Box<dyn Error> = e.into();
     }
 }
