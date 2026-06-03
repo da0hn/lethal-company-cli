@@ -1,11 +1,12 @@
 use crate::state::GameState;
 
-const COMMANDS: [(&str, &str); 5] = [
+const COMMANDS: [(&str, &str); 6] = [
     ("help", "Show this help message"),
     ("exit", "Terminate session"),
     ("clear", "Clear screen"),
     ("tick", "Advance game day by one"),
     ("status", "Show current game state"),
+    ("credits", "Show current balance"),
 ];
 
 #[derive(Debug, PartialEq)]
@@ -19,6 +20,7 @@ pub enum Command {
     Unknown(String),
     Tick,
     Status,
+    Credits,
 }
 
 #[derive(Debug, PartialEq)]
@@ -37,6 +39,7 @@ pub fn parse(input: &str) -> Command {
         (Some("clear"), _) => Command::Clear,
         (Some("tick"), _) => Command::Tick,
         (Some("status"), _) => Command::Status,
+        (Some("credits"), _) => Command::Credits,
         (Some(other), _) => Command::Unknown(other.into()),
         (None, _) => Command::Empty,
     }
@@ -69,6 +72,10 @@ pub fn dispatch(command: Command, state: &mut GameState) -> LoopAction {
         Command::Tick => {
             state.advance_day();
             println!("[CLOCK] DAY ADVANCED TO {}", state.day());
+            LoopAction::Continue
+        }
+        Command::Credits => {
+            println!("[WALLET] BALANCE: {} CR", state.credits());
             LoopAction::Continue
         }
         Command::Status => {
@@ -182,5 +189,16 @@ mod tests {
     fn dispatch_status_returns_loop_continue() {
         let mut state = GameState::new();
         assert_eq!(dispatch(Command::Status, &mut state), LoopAction::Continue);
+    }
+
+    #[test]
+    fn parse_credits_returns_credits() {
+        assert_eq!(parse("credits"), Command::Credits);
+    }
+
+    #[test]
+    fn dispatch_credits_returns_loop_continue() {
+        let mut state = GameState::new();
+        assert_eq!(dispatch(Command::Credits, &mut state), LoopAction::Continue);
     }
 }

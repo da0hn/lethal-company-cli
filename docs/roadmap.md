@@ -124,22 +124,22 @@ Convenção:
 
 ## Fase 4 — Créditos (feature 7)
 
-### [ ] T4.1 — Métodos `add_credits` / `spend_credits`
+### [x] T4.1 — Métodos `add_credits` / `spend_credits`
 - **Objetivo**: encapsular mutação no `impl GameState`.
 - 🦀 métodos `&mut self`, retorno de `Result<T, E>`.
 - 🎯 `spend_credits(50)` retorna `Err` se saldo insuficiente.
 - 📚 Cap. 9 — Error Handling.
 
-### [ ] T4.2 — Erro customizado `WalletError`
+### [x] T4.2 — Erro customizado `WalletError`
 - **Objetivo**: enum de erro próprio.
 - 🦀 `enum` para erro, `impl Display`, `impl std::error::Error` (opcional), `From` (opcional).
 - 🎯 mensagem de erro corporativa quando saldo insuficiente.
 
-### [ ] T4.3 — Comando `credits`
+### [x] T4.3 — Comando `credits`
 - **Objetivo**: ler/exibir saldo.
 - 🎯 `credits` imprime "BALANCE: 100 CR".
 
-### [ ] 🧪 T4.4 — Testes de `WalletError`
+### [x] 🧪 T4.4 — Testes de `WalletError`
 - **Objetivo**: cobrir caminhos `Ok` / `Err` de `add_credits` e `spend_credits`.
 - 🦀 `assert!(matches!(result, Err(WalletError::InsufficientFunds { .. })))`, testes que cobrem overflow se aplicável.
 - 🎯 testes para: gasto válido, gasto sem saldo, soma normal, e (opcional) overflow.

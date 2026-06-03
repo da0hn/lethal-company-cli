@@ -1,4 +1,6 @@
+use std::error::Error;
 use std::fmt;
+use std::fmt::Formatter;
 
 #[derive(Debug)]
 pub struct GameState {
@@ -31,6 +33,29 @@ impl GameState {
     pub fn advance_day(&mut self) {
         self.day += 1;
     }
+
+    pub fn add_credits(&mut self, amount: u32) -> Result<(), WalletError> {
+        match self.credits.checked_add(amount) {
+            Some(new_credits) => {
+                self.credits = new_credits;
+                Ok(())
+            }
+            None => Err(WalletError::Overflow),
+        }
+    }
+
+    pub fn spend_credits(&mut self, amount: u32) -> Result<(), WalletError> {
+        match self.credits.checked_sub(amount) {
+            Some(new_credits) => {
+                self.credits = new_credits;
+                Ok(())
+            }
+            None => Err(WalletError::InsufficientFunds {
+                available: self.credits,
+                requested: amount,
+            }),
+        }
+    }
 }
 
 impl Default for GameState {
@@ -47,6 +72,36 @@ impl fmt::Display for GameState {
         write!(f, "{:<10} {}", "LOCATION:", location)
     }
 }
+
+#[derive(Debug, PartialEq)]
+pub enum WalletError {
+    InsufficientFunds { available: u32, requested: u32 },
+    Overflow,
+}
+
+impl fmt::Display for WalletError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            WalletError::InsufficientFunds {
+                available,
+                requested,
+            } => {
+                write!(
+                    f,
+                    "TRANSACTION DENIED: need {requested} CR, balance {available} CR"
+                )
+            }
+            WalletError::Overflow => {
+                write!(
+                    f,
+                    "TRANSACTION OVERFLOW: credit balance exceeds maximum capacity"
+                )
+            }
+        }
+    }
+}
+
+impl Error for WalletError {}
 
 #[cfg(test)]
 mod tests {
@@ -85,5 +140,49 @@ mod tests {
         assert!(output.contains("DAY:"));
         assert!(output.contains("LOCATION:"));
         assert!(output.contains("ORBIT"));
+    }
+
+    #[test]
+    fn add_100_credits_increments_credits_by_100() {
+        let mut state = GameState::new();
+        let result = state.add_credits(100);
+        assert!(result.is_ok());
+        assert_eq!(state.credits(), 200);
+    }
+
+    #[test]
+    fn add_max_u32_credits_returns_overflow_error() {
+        let mut state = GameState::new();
+        let result = state.add_credits(u32::MAX);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), WalletError::Overflow);
+    }
+
+    #[test]
+    fn spend_insufficient_credits_returns_insufficient_funds_error() {
+        let mut state = GameState::new();
+        let result = state.spend_credits(1000);
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            WalletError::InsufficientFunds {
+                available: 100,
+                requested: 1000
+            }
+        );
+    }
+
+    #[test]
+    fn spend_10_credits_returns_ok() {
+        let mut state = GameState::new();
+        let result = state.spend_credits(10);
+        assert!(result.is_ok());
+        assert_eq!(state.credits(), 90);
+    }
+
+    #[test]
+    fn wallet_error_converts_to_boxed_error() {
+        let e = WalletError::Overflow;
+        let _boxed: Box<dyn Error> = e.into();
     }
 }
