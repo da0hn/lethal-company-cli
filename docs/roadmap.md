@@ -135,7 +135,7 @@ Convenção:
 - 🦀 `enum` para erro, `impl Display`, `impl std::error::Error` (opcional), `From` (opcional).
 - 🎯 mensagem de erro corporativa quando saldo insuficiente.
 
-### [ ] T4.3 — Comando `credits`
+### [x] T4.3 — Comando `credits`
 - **Objetivo**: ler/exibir saldo.
 - 🎯 `credits` imprime "BALANCE: 100 CR".
 
