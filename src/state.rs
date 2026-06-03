@@ -1,5 +1,11 @@
 use std::fmt;
 
+#[derive(Debug, PartialEq)]
+pub enum WalletError {
+    InsufficientFunds { available: u32, requested: u32 },
+    Overflow,
+}
+
 #[derive(Debug)]
 pub struct GameState {
     credits: u32,
@@ -30,6 +36,29 @@ impl GameState {
 
     pub fn advance_day(&mut self) {
         self.day += 1;
+    }
+
+    pub fn add_credits(&mut self, amount: u32) -> Result<(), WalletError> {
+        match self.credits.checked_add(amount) {
+            Some(new_credits) => {
+                self.credits = new_credits;
+                Ok(())
+            }
+            None => Err(WalletError::Overflow),
+        }
+    }
+
+    pub fn spend_credits(&mut self, amount: u32) -> Result<(), WalletError> {
+        match self.credits.checked_sub(amount) {
+            Some(new_credits) => {
+                self.credits = new_credits;
+                Ok(())
+            }
+            None => Err(WalletError::InsufficientFunds {
+                available: self.credits,
+                requested: amount,
+            }),
+        }
     }
 }
 
@@ -85,5 +114,43 @@ mod tests {
         assert!(output.contains("DAY:"));
         assert!(output.contains("LOCATION:"));
         assert!(output.contains("ORBIT"));
+    }
+
+    #[test]
+    fn add_100_credits_increments_credits_by_100() {
+        let mut state = GameState::new();
+        let result = state.add_credits(100);
+        assert!(result.is_ok());
+        assert_eq!(state.credits(), 200);
+    }
+
+    #[test]
+    fn add_max_u32_credits_returns_overflow_error() {
+        let mut state = GameState::new();
+        let result = state.add_credits(u32::MAX);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), WalletError::Overflow);
+    }
+
+    #[test]
+    fn spend_insufficient_credits_returns_insufficient_funds_error() {
+        let mut state = GameState::new();
+        let result = state.spend_credits(1000);
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            WalletError::InsufficientFunds {
+                available: 100,
+                requested: 1000
+            }
+        );
+    }
+
+    #[test]
+    fn spend_10_credits_returns_ok() {
+        let mut state = GameState::new();
+        let result = state.spend_credits(10);
+        assert!(result.is_ok());
+        assert_eq!(state.credits(), 90);
     }
 }
