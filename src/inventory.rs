@@ -1,7 +1,8 @@
+use std::collections::BTreeMap;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
 pub enum ItemKind {
     RadarBooster,
     Shovel,
@@ -43,7 +44,7 @@ impl Item {
     }
 }
 
-const CAPACITY: usize = 4;
+const CAPACITY: usize = 16;
 
 #[derive(Debug, PartialEq)]
 pub struct Inventory {
@@ -88,6 +89,14 @@ impl Inventory {
 
     pub fn items(&self) -> &[Item] {
         &self.items
+    }
+
+    pub fn counts(&self) -> BTreeMap<ItemKind, u32> {
+        let mut grouped_items: BTreeMap<ItemKind, u32> = BTreeMap::new();
+        for item in &self.items {
+            *grouped_items.entry(item.kind).or_insert(0) += 1;
+        }
+        grouped_items
     }
 }
 
@@ -143,5 +152,37 @@ mod tests {
             result.unwrap_err(),
             InventoryError::Full { capacity: CAPACITY }
         );
+    }
+
+    #[test]
+    fn counts_returns_grouped_items() {
+        let mut inventory = Inventory::new();
+        inventory
+            .add_item(Item {
+                kind: ItemKind::Shovel,
+            })
+            .unwrap();
+        inventory
+            .add_item(Item {
+                kind: ItemKind::Shovel,
+            })
+            .unwrap();
+        inventory
+            .add_item(Item {
+                kind: ItemKind::Flashlight,
+            })
+            .unwrap();
+
+        let grouped_items = inventory.counts();
+        assert_eq!(grouped_items.len(), 2);
+        assert_eq!(grouped_items.get(&ItemKind::Shovel), Some(&2));
+        assert_eq!(grouped_items.get(&ItemKind::Flashlight), Some(&1));
+    }
+
+    #[test]
+    fn counts_empty_inventory_returns_empty_group() {
+        let inventory = Inventory::new();
+        let grouped_items = inventory.counts();
+        assert_eq!(grouped_items.len(), 0);
     }
 }

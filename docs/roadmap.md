@@ -160,12 +160,12 @@ Convenção:
 - 🎯 `inventory` aceita até N itens; tentativas além retornam erro.
 - 📚 Cap. 8 — Common Collections.
 
-### [ ] T5.3 — Comando `inventory`
+### [x] T5.3 — Comando `inventory`
 - **Objetivo**: listar itens agrupados por tipo.
 - 🦀 `HashMap<ItemKind, u32>` para contar, ou `iter().fold`.
 - 🎯 saída do tipo `LANTERN x2 / SHOVEL x1`.
 
-### [ ] 🧪 T5.4 — Testes de capacidade do inventário
+### [x] 🧪 T5.4 — Testes de capacidade do inventário
 - **Objetivo**: garantir que o limite máximo é respeitado.
 - 🦀 `#[should_panic]` (se a regra usar panic) ou `Result` + `matches!`, helper de setup em testes.
 - 🎯 testes: adicionar até o limite, ultrapassar limite → erro, contagem por tipo correta.
