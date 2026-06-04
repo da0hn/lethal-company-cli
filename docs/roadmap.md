@@ -149,7 +149,7 @@ Convenção:
 
 ## Fase 5 — Inventário (feature 8)
 
-### [ ] T5.1 — Struct `Item` e enum `ItemKind`
+### [x] T5.1 — Struct `Item` e enum `ItemKind`
 - **Objetivo**: modelar itens (lanterna, pá, etc.).
 - 🦀 derive (`Clone`, `Debug`, `PartialEq`), variantes de enum sem dado.
 - 🎯 lista com 5 itens iniciais possíveis.
