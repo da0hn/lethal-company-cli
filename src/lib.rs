@@ -3,6 +3,7 @@ use state::GameState;
 use std::io::{self, BufRead, Write};
 
 pub mod commands;
+pub mod inventory;
 pub mod state;
 pub mod ui;
 

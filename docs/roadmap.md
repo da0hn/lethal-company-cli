@@ -149,23 +149,23 @@ Convenção:
 
 ## Fase 5 — Inventário (feature 8)
 
-### [ ] T5.1 — Struct `Item` e enum `ItemKind`
+### [x] T5.1 — Struct `Item` e enum `ItemKind`
 - **Objetivo**: modelar itens (lanterna, pá, etc.).
 - 🦀 derive (`Clone`, `Debug`, `PartialEq`), variantes de enum sem dado.
 - 🎯 lista com 5 itens iniciais possíveis.
 
-### [ ] T5.2 — Inventário com `Vec<Item>`
+### [x] T5.2 — Inventário com `Vec<Item>`
 - **Objetivo**: campo `inventory: Vec<Item>` em `GameState`.
 - 🦀 `Vec`, `push`, `iter`, `len`, capacidade fixa via constante.
 - 🎯 `inventory` aceita até N itens; tentativas além retornam erro.
 - 📚 Cap. 8 — Common Collections.
 
-### [ ] T5.3 — Comando `inventory`
+### [x] T5.3 — Comando `inventory`
 - **Objetivo**: listar itens agrupados por tipo.
 - 🦀 `HashMap<ItemKind, u32>` para contar, ou `iter().fold`.
 - 🎯 saída do tipo `LANTERN x2 / SHOVEL x1`.
 
-### [ ] 🧪 T5.4 — Testes de capacidade do inventário
+### [x] 🧪 T5.4 — Testes de capacidade do inventário
 - **Objetivo**: garantir que o limite máximo é respeitado.
 - 🦀 `#[should_panic]` (se a regra usar panic) ou `Result` + `matches!`, helper de setup em testes.
 - 🎯 testes: adicionar até o limite, ultrapassar limite → erro, contagem por tipo correta.

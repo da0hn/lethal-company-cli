@@ -1,12 +1,13 @@
 use crate::state::GameState;
 
-const COMMANDS: [(&str, &str); 6] = [
+const COMMANDS: [(&str, &str); 7] = [
     ("help", "Show this help message"),
     ("exit", "Terminate session"),
     ("clear", "Clear screen"),
     ("tick", "Advance game day by one"),
     ("status", "Show current game state"),
     ("credits", "Show current balance"),
+    ("inventory", "Show current inventory"),
 ];
 
 #[derive(Debug, PartialEq)]
@@ -21,6 +22,7 @@ pub enum Command {
     Tick,
     Status,
     Credits,
+    Inventory,
 }
 
 #[derive(Debug, PartialEq)]
@@ -40,6 +42,7 @@ pub fn parse(input: &str) -> Command {
         (Some("tick"), _) => Command::Tick,
         (Some("status"), _) => Command::Status,
         (Some("credits"), _) => Command::Credits,
+        (Some("inventory"), _) => Command::Inventory,
         (Some(other), _) => Command::Unknown(other.into()),
         (None, _) => Command::Empty,
     }
@@ -82,7 +85,27 @@ pub fn dispatch(command: Command, state: &mut GameState) -> LoopAction {
             println!("{state}");
             LoopAction::Continue
         }
+        Command::Inventory => {
+            print_inventory(state);
+            LoopAction::Continue
+        }
     }
+}
+
+fn print_inventory(state: &GameState) {
+    let grouped_items = state.inventory().counts();
+
+    if grouped_items.is_empty() {
+        println!("INVENTORY EMPTY");
+        return;
+    }
+
+    let mut summary: Vec<String> = Vec::new();
+    for (item, count) in grouped_items {
+        summary.push(format!("{item} x{count}"));
+    }
+    println!("INVENTORY SUMMARY: ");
+    println!("{}", summary.join(" / "));
 }
 
 fn print_help() {
@@ -200,5 +223,19 @@ mod tests {
     fn dispatch_credits_returns_loop_continue() {
         let mut state = GameState::new();
         assert_eq!(dispatch(Command::Credits, &mut state), LoopAction::Continue);
+    }
+
+    #[test]
+    fn parse_inventory_returns_inventory() {
+        assert_eq!(parse("inventory"), Command::Inventory);
+    }
+
+    #[test]
+    fn dispatch_inventory_returns_loop_continue() {
+        let mut state = GameState::new();
+        assert_eq!(
+            dispatch(Command::Inventory, &mut state),
+            LoopAction::Continue
+        );
     }
 }
