@@ -1,3 +1,4 @@
+use crate::inventory::Inventory;
 use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
@@ -7,6 +8,7 @@ pub struct GameState {
     credits: u32,
     day: u16,
     current_planet: Option<String>,
+    inventory: Inventory,
 }
 
 impl GameState {
@@ -15,6 +17,7 @@ impl GameState {
             credits: 100,
             day: 1,
             current_planet: None,
+            inventory: Inventory::new(),
         }
     }
 
@@ -55,6 +58,10 @@ impl GameState {
                 requested: amount,
             }),
         }
+    }
+
+    pub fn inventory(&self) -> &Inventory {
+        &self.inventory
     }
 }
 
@@ -113,6 +120,7 @@ mod tests {
         assert_eq!(state.credits(), 100);
         assert_eq!(state.day(), 1);
         assert_eq!(state.current_planet(), None);
+        assert_eq!(state.inventory().current_quantity(), 0);
     }
 
     #[test]
@@ -121,6 +129,7 @@ mod tests {
         assert_eq!(state.credits(), 100);
         assert_eq!(state.day(), 1);
         assert_eq!(state.current_planet(), None);
+        assert_eq!(state.inventory().current_quantity(), 0);
     }
 
     #[test]

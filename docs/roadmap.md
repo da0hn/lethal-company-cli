@@ -154,7 +154,7 @@ Convenção:
 - 🦀 derive (`Clone`, `Debug`, `PartialEq`), variantes de enum sem dado.
 - 🎯 lista com 5 itens iniciais possíveis.
 
-### [ ] T5.2 — Inventário com `Vec<Item>`
+### [x] T5.2 — Inventário com `Vec<Item>`
 - **Objetivo**: campo `inventory: Vec<Item>` em `GameState`.
 - 🦀 `Vec`, `push`, `iter`, `len`, capacidade fixa via constante.
 - 🎯 `inventory` aceita até N itens; tentativas além retornam erro.
