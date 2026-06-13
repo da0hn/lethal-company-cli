@@ -174,7 +174,7 @@ Convenção:
 
 ## Fase 6 — Loja (feature 6)
 
-### [ ] T6.1 — Catálogo da loja
+### [x] T6.1 — Catálogo da loja
 - **Objetivo**: lista estática de itens com preço.
 - 🦀 `const` arrays vs `static`, tuplas ou structs.
 - 🎯 `store` lista nome + preço.

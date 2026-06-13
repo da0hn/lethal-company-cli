@@ -5,6 +5,7 @@ use std::io::{self, BufRead, Write};
 pub mod commands;
 pub mod inventory;
 pub mod state;
+pub mod store;
 pub mod ui;
 
 const COMPANY_NAME: &str = "THE CORP";
