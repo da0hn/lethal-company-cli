@@ -55,8 +55,8 @@ impl StoreItem {
         Self { kind, price }
     }
 
-    pub fn kind(&self) -> &ItemKind {
-        &self.kind
+    pub fn kind(&self) -> ItemKind {
+        self.kind
     }
 
     pub fn price(&self) -> u32 {
@@ -72,4 +72,21 @@ impl Display for StoreItem {
 
 pub fn catalog() -> &'static [StoreItem] {
     &CATALOG
+}
+
+pub fn price_of(kind: ItemKind) -> Option<u32> {
+    catalog()
+        .iter()
+        .find(|item| item.kind() == kind)
+        .map(|item| item.price)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn price_of_shovel_returns_shovel_price() {
+        assert_eq!(price_of(ItemKind::Shovel), Some(30));
+    }
 }
