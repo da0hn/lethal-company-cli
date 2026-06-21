@@ -58,6 +58,10 @@ impl FromStr for ItemKind {
 pub struct ParseItemKindError(String);
 
 impl ParseItemKindError {
+    pub fn new(name: &str) -> Self {
+        Self(name.to_string())
+    }
+
     pub fn name(&self) -> &str {
         self.0.as_str()
     }
@@ -136,10 +140,15 @@ impl Inventory {
     }
 
     fn push_item(&mut self, item: Item) -> Result<(), InventoryError> {
+        self.ensure_capacity()?;
+        self.items.push(item);
+        Ok(())
+    }
+
+    pub fn ensure_capacity(&self) -> Result<(), InventoryError> {
         if self.items.len() >= CAPACITY {
             return Err(InventoryError::Full { capacity: CAPACITY });
         }
-        self.items.push(item);
         Ok(())
     }
 }

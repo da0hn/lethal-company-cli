@@ -1,7 +1,9 @@
-use crate::inventory::Inventory;
+use crate::inventory::{Inventory, InventoryError, ItemKind, ParseItemKindError};
+use crate::store::price_of;
 use std::error::Error;
 use std::fmt;
-use std::fmt::Formatter;
+use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
 #[derive(Debug)]
 pub struct GameState {
@@ -63,6 +65,15 @@ impl GameState {
     pub fn inventory(&self) -> &Inventory {
         &self.inventory
     }
+
+    pub fn buy(&mut self, item: &str) -> Result<ItemKind, BuyError> {
+        let kind = ItemKind::from_str(item)?;
+        let item_price = price_of(kind).ok_or(BuyError::NotForSale(kind))?;
+        self.inventory.ensure_capacity()?;
+        self.spend_credits(item_price)?;
+        self.inventory.add_item(kind)?;
+        Ok(kind)
+    }
 }
 
 impl Default for GameState {
@@ -71,8 +82,8 @@ impl Default for GameState {
     }
 }
 
-impl fmt::Display for GameState {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl Display for GameState {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let location = self.current_planet().unwrap_or("ORBIT");
         writeln!(f, "{:<10} {} CR", "CREDITS:", self.credits)?;
         writeln!(f, "{:<10} {}", "DAY:", self.day)?;
@@ -86,7 +97,7 @@ pub enum WalletError {
     Overflow,
 }
 
-impl fmt::Display for WalletError {
+impl Display for WalletError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             WalletError::InsufficientFunds {
@@ -109,6 +120,45 @@ impl fmt::Display for WalletError {
 }
 
 impl Error for WalletError {}
+
+#[derive(Debug, PartialEq)]
+pub enum BuyError {
+    UnknownItem(String),
+    NotForSale(ItemKind),
+    Wallet(WalletError),
+    Inventory(InventoryError),
+}
+
+impl Display for BuyError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            BuyError::UnknownItem(item) => write!(f, "UNKNOWN ITEM: {item}"),
+            BuyError::NotForSale(item) => write!(f, "ITEM NOT AVAILABLE FOR SALE: {item}"),
+            BuyError::Wallet(err) => write!(f, "WALLET ERROR: {err}"),
+            BuyError::Inventory(err) => write!(f, "INVENTORY ERROR: {err}"),
+        }
+    }
+}
+
+impl Error for BuyError {}
+
+impl From<WalletError> for BuyError {
+    fn from(value: WalletError) -> Self {
+        BuyError::Wallet(value)
+    }
+}
+
+impl From<InventoryError> for BuyError {
+    fn from(value: InventoryError) -> Self {
+        BuyError::Inventory(value)
+    }
+}
+
+impl From<ParseItemKindError> for BuyError {
+    fn from(value: ParseItemKindError) -> Self {
+        BuyError::UnknownItem(value.name().to_string())
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -193,5 +243,63 @@ mod tests {
     fn wallet_error_converts_to_boxed_error() {
         let e = WalletError::Overflow;
         let _boxed: Box<dyn Error> = e.into();
+    }
+
+    #[test]
+    fn wallet_error_converts_to_buy_error() {
+        let e = WalletError::Overflow;
+        assert_eq!(BuyError::from(e), BuyError::Wallet(WalletError::Overflow));
+    }
+
+    #[test]
+    fn inventory_error_converts_to_buy_error() {
+        let e = InventoryError::Full { capacity: 16 };
+        assert_eq!(
+            BuyError::from(e),
+            BuyError::Inventory(InventoryError::Full { capacity: 16 })
+        );
+    }
+
+    #[test]
+    fn parse_error_converts_to_buy_error() {
+        let e = ParseItemKindError::new("unknown");
+        assert_eq!(
+            BuyError::from(e),
+            BuyError::UnknownItem("unknown".to_string())
+        );
+    }
+
+    #[test]
+    fn buy_item_returns_ok() {
+        let mut state = GameState::new();
+        let result = state.buy("shovel");
+        assert!(result.is_ok());
+        assert_eq!(state.credits(), 70);
+        assert_eq!(state.inventory().current_quantity(), 1);
+    }
+
+    #[test]
+    fn buy_unknown_item_returns_err() {
+        let mut state = GameState::new();
+        let result = state.buy("unknown");
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            BuyError::UnknownItem("unknown".to_string())
+        );
+    }
+
+    #[test]
+    fn buy_item_with_insufficient_credits_returns_err() {
+        let mut state = GameState::new();
+        let result = state.buy("zap gun");
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            BuyError::Wallet(WalletError::InsufficientFunds {
+                available: 100,
+                requested: 400
+            })
+        );
     }
 }
