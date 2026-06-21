@@ -36,19 +36,25 @@ pub enum LoopAction {
 
 pub fn parse(input: &str) -> Command {
     let mut parts = input.split_whitespace();
-    match (parts.next(), parts.next()) {
-        (Some("buy"), Some(item)) => Command::Buy(item.into()),
-        (Some("buy"), None) => Command::InvalidUsage("buy".into()),
-        (Some("help"), _) => Command::Help,
-        (Some("exit"), _) => Command::Exit,
-        (Some("clear"), _) => Command::Clear,
-        (Some("tick"), _) => Command::Tick,
-        (Some("status"), _) => Command::Status,
-        (Some("credits"), _) => Command::Credits,
-        (Some("inventory"), _) => Command::Inventory,
-        (Some("store"), _) => Command::Store,
-        (Some(other), _) => Command::Unknown(other.into()),
-        (None, _) => Command::Empty,
+    match parts.next() {
+        Some("buy") => {
+            let args = parts.collect::<Vec<_>>().join(" ");
+            if args.is_empty() {
+                Command::InvalidUsage("buy".into())
+            } else {
+                Command::Buy(args)
+            }
+        }
+        Some("help") => Command::Help,
+        Some("exit") => Command::Exit,
+        Some("clear") => Command::Clear,
+        Some("tick") => Command::Tick,
+        Some("status") => Command::Status,
+        Some("credits") => Command::Credits,
+        Some("inventory") => Command::Inventory,
+        Some("store") => Command::Store,
+        Some(other) => Command::Unknown(other.into()),
+        None => Command::Empty,
     }
 }
 
@@ -69,7 +75,14 @@ pub fn dispatch(command: Command, state: &mut GameState) -> LoopAction {
         }
         Command::Empty => LoopAction::Continue,
         Command::Buy(item) => {
-            println!("[STORE] PURCHASE REQUEST: {item} (NOT IMPLEMENTED YET)");
+            match state.buy(&item) {
+                Ok(item_kind) => println!(
+                    "[STORE] PURCHASED {item_kind}. CURRENT BALANCE: {} CR",
+                    state.credits()
+                ),
+                Err(err) => println!("[STORE] {err}"),
+            }
+
             LoopAction::Continue
         }
         Command::InvalidUsage(cmd) => {
@@ -190,6 +203,11 @@ mod tests {
     #[test]
     fn parse_buy_with_item_returns_buy() {
         assert_eq!(parse("buy sword"), Command::Buy("sword".into()));
+    }
+
+    #[test]
+    fn parse_buy_zap_gun_returns_buy() {
+        assert_eq!(parse("buy zap gun"), Command::Buy("zap gun".into()));
     }
 
     #[test]
