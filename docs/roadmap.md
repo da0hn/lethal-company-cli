@@ -179,7 +179,7 @@ Convenção:
 - 🦀 `const` arrays vs `static`, tuplas ou structs.
 - 🎯 `store` lista nome + preço.
 
-### [ ] T6.2 — Comando `buy <item>`
+### [x] T6.2 — Comando `buy <item>`
 - **Objetivo**: parse do argumento, débito de crédito, push no inventário.
 - 🦀 parser que recebe `Vec<&str>` ou `&[&str]`, propagação de `Result` com `?`.
 - 🎯 `buy lantern` debita e adiciona; sem saldo → erro; item inválido → erro.
