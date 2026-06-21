@@ -184,7 +184,7 @@ Convenção:
 - 🦀 parser que recebe `Vec<&str>` ou `&[&str]`, propagação de `Result` com `?`.
 - 🎯 `buy lantern` debita e adiciona; sem saldo → erro; item inválido → erro.
 
-### [ ] 🧪 T6.3 — Testes de integração de `buy`
+### [x] 🧪 T6.3 — Testes de integração de `buy`
 - **Objetivo**: testar a interação entre carteira e inventário (não mais função pura).
 - 🦀 enum de erro composto (ex.: `BuyError::Wallet(WalletError) | BuyError::UnknownItem | BuyError::InventoryFull`), `From` impls para usar `?`.
 - 🎯 testes: compra ok, sem saldo, item inexistente, inventário cheio.
