@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
-use std::error::Error;
 use std::fmt::{Display, Formatter};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
 pub enum ItemKind {
@@ -18,20 +18,63 @@ pub enum ItemKind {
 
 impl Display for ItemKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ItemKind::RadarBooster => write!(f, "RADAR BOOSTER"),
-            ItemKind::Shovel => write!(f, "SHOVEL"),
-            ItemKind::WalkieTalkie => write!(f, "WALKIE-TALKIE"),
-            ItemKind::ExtensionLadder => write!(f, "EXTENSION LADDER"),
-            ItemKind::Boombox => write!(f, "BOOMBOX"),
-            ItemKind::Flashlight => write!(f, "FLASHLIGHT"),
-            ItemKind::Jetpack => write!(f, "JETPACK"),
-            ItemKind::Lockpicker => write!(f, "LOCKPICKER"),
-            ItemKind::ZapGun => write!(f, "ZAP GUN"),
-            ItemKind::StunGrenade => write!(f, "STUN GRENADE"),
+        let name = match self {
+            ItemKind::RadarBooster => "RADAR BOOSTER",
+            ItemKind::Shovel => "SHOVEL",
+            ItemKind::WalkieTalkie => "WALKIE-TALKIE",
+            ItemKind::ExtensionLadder => "EXTENSION LADDER",
+            ItemKind::Boombox => "BOOMBOX",
+            ItemKind::Flashlight => "FLASHLIGHT",
+            ItemKind::Jetpack => "JETPACK",
+            ItemKind::Lockpicker => "LOCKPICKER",
+            ItemKind::ZapGun => "ZAP GUN",
+            ItemKind::StunGrenade => "STUN GRENADE",
+        };
+        f.pad(name)
+    }
+}
+
+impl FromStr for ItemKind {
+    type Err = ParseItemKindError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_ascii_lowercase().as_str() {
+            "radar booster" => Ok(ItemKind::RadarBooster),
+            "shovel" => Ok(ItemKind::Shovel),
+            "walkie-talkie" => Ok(ItemKind::WalkieTalkie),
+            "extension ladder" => Ok(ItemKind::ExtensionLadder),
+            "boombox" => Ok(ItemKind::Boombox),
+            "flashlight" => Ok(ItemKind::Flashlight),
+            "jetpack" => Ok(ItemKind::Jetpack),
+            "lockpicker" => Ok(ItemKind::Lockpicker),
+            "zap gun" => Ok(ItemKind::ZapGun),
+            "stun grenade" => Ok(ItemKind::StunGrenade),
+            _ => Err(ParseItemKindError(s.to_string())),
         }
     }
 }
+
+#[derive(Debug, PartialEq)]
+pub struct ParseItemKindError(String);
+
+impl ParseItemKindError {
+    pub fn new(name: &str) -> Self {
+        Self(name.to_string())
+    }
+
+    pub fn name(&self) -> &str {
+        self.0.as_str()
+    }
+}
+
+impl Display for ParseItemKindError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let err_message = format!("UNKNOWN ITEM: {}", self.0);
+        f.pad(&err_message)
+    }
+}
+
+impl std::error::Error for ParseItemKindError {}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Item {
@@ -66,21 +109,13 @@ impl Display for InventoryError {
     }
 }
 
-impl Error for InventoryError {}
+impl std::error::Error for InventoryError {}
 
 impl Inventory {
     pub fn new() -> Self {
         Self {
             items: Vec::with_capacity(CAPACITY),
         }
-    }
-
-    pub fn add_item(&mut self, item: Item) -> Result<(), InventoryError> {
-        if self.items.len() >= CAPACITY {
-            return Err(InventoryError::Full { capacity: CAPACITY });
-        }
-        self.items.push(item);
-        Ok(())
     }
 
     pub fn current_quantity(&self) -> usize {
@@ -98,6 +133,24 @@ impl Inventory {
         }
         grouped_items
     }
+
+    pub fn add_item(&mut self, kind: ItemKind) -> Result<(), InventoryError> {
+        let new_item = Item { kind };
+        self.push_item(new_item)
+    }
+
+    fn push_item(&mut self, item: Item) -> Result<(), InventoryError> {
+        self.ensure_capacity()?;
+        self.items.push(item);
+        Ok(())
+    }
+
+    pub fn ensure_capacity(&self) -> Result<(), InventoryError> {
+        if self.items.len() >= CAPACITY {
+            return Err(InventoryError::Full { capacity: CAPACITY });
+        }
+        Ok(())
+    }
 }
 
 impl Default for Inventory {
@@ -108,7 +161,6 @@ impl Default for Inventory {
 
 #[cfg(test)]
 mod tests {
-
     use super::*;
 
     #[test]
@@ -126,11 +178,7 @@ mod tests {
     #[test]
     fn add_items_returns_ok() {
         let mut inventory = Inventory::new();
-        inventory
-            .add_item(Item {
-                kind: ItemKind::Lockpicker,
-            })
-            .unwrap();
+        inventory.add_item(ItemKind::Lockpicker).unwrap();
         assert_eq!(inventory.items.len(), 1);
     }
 
@@ -138,15 +186,9 @@ mod tests {
     fn add_items_when_full_returns_inventory_error() {
         let mut inventory = Inventory::new();
         for _ in 0..CAPACITY {
-            inventory
-                .add_item(Item {
-                    kind: ItemKind::Lockpicker,
-                })
-                .unwrap();
+            inventory.add_item(ItemKind::Lockpicker).unwrap();
         }
-        let result = inventory.add_item(Item {
-            kind: ItemKind::Lockpicker,
-        });
+        let result = inventory.add_item(ItemKind::Lockpicker);
         assert!(result.is_err());
         assert_eq!(
             result.unwrap_err(),
@@ -157,21 +199,9 @@ mod tests {
     #[test]
     fn counts_returns_grouped_items() {
         let mut inventory = Inventory::new();
-        inventory
-            .add_item(Item {
-                kind: ItemKind::Shovel,
-            })
-            .unwrap();
-        inventory
-            .add_item(Item {
-                kind: ItemKind::Shovel,
-            })
-            .unwrap();
-        inventory
-            .add_item(Item {
-                kind: ItemKind::Flashlight,
-            })
-            .unwrap();
+        inventory.add_item(ItemKind::Shovel).unwrap();
+        inventory.add_item(ItemKind::Shovel).unwrap();
+        inventory.add_item(ItemKind::Flashlight).unwrap();
 
         let grouped_items = inventory.counts();
         assert_eq!(grouped_items.len(), 2);
@@ -184,5 +214,18 @@ mod tests {
         let inventory = Inventory::new();
         let grouped_items = inventory.counts();
         assert_eq!(grouped_items.len(), 0);
+    }
+
+    #[test]
+    fn from_str_shovel_returns_shovel_item_kind() {
+        assert_eq!(ItemKind::from_str("shovel"), Ok(ItemKind::Shovel));
+    }
+
+    #[test]
+    fn from_str_unknown_returns_err() {
+        assert_eq!(
+            ItemKind::from_str("unknown"),
+            Err(ParseItemKindError("unknown".to_string()))
+        );
     }
 }

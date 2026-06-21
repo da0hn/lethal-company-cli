@@ -174,17 +174,17 @@ Convenção:
 
 ## Fase 6 — Loja (feature 6)
 
-### [ ] T6.1 — Catálogo da loja
+### [x] T6.1 — Catálogo da loja
 - **Objetivo**: lista estática de itens com preço.
 - 🦀 `const` arrays vs `static`, tuplas ou structs.
 - 🎯 `store` lista nome + preço.
 
-### [ ] T6.2 — Comando `buy <item>`
+### [x] T6.2 — Comando `buy <item>`
 - **Objetivo**: parse do argumento, débito de crédito, push no inventário.
 - 🦀 parser que recebe `Vec<&str>` ou `&[&str]`, propagação de `Result` com `?`.
 - 🎯 `buy lantern` debita e adiciona; sem saldo → erro; item inválido → erro.
 
-### [ ] 🧪 T6.3 — Testes de integração de `buy`
+### [x] 🧪 T6.3 — Testes de integração de `buy`
 - **Objetivo**: testar a interação entre carteira e inventário (não mais função pura).
 - 🦀 enum de erro composto (ex.: `BuyError::Wallet(WalletError) | BuyError::UnknownItem | BuyError::InventoryFull`), `From` impls para usar `?`.
 - 🎯 testes: compra ok, sem saldo, item inexistente, inventário cheio.

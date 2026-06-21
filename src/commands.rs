@@ -1,6 +1,7 @@
 use crate::state::GameState;
+use crate::store::catalog;
 
-const COMMANDS: [(&str, &str); 7] = [
+const COMMANDS: [(&str, &str); 8] = [
     ("help", "Show this help message"),
     ("exit", "Terminate session"),
     ("clear", "Clear screen"),
@@ -8,6 +9,7 @@ const COMMANDS: [(&str, &str); 7] = [
     ("status", "Show current game state"),
     ("credits", "Show current balance"),
     ("inventory", "Show current inventory"),
+    ("store", "List items for sale"),
 ];
 
 #[derive(Debug, PartialEq)]
@@ -23,6 +25,7 @@ pub enum Command {
     Status,
     Credits,
     Inventory,
+    Store,
 }
 
 #[derive(Debug, PartialEq)]
@@ -33,18 +36,25 @@ pub enum LoopAction {
 
 pub fn parse(input: &str) -> Command {
     let mut parts = input.split_whitespace();
-    match (parts.next(), parts.next()) {
-        (Some("buy"), Some(item)) => Command::Buy(item.into()),
-        (Some("buy"), None) => Command::InvalidUsage("buy".into()),
-        (Some("help"), _) => Command::Help,
-        (Some("exit"), _) => Command::Exit,
-        (Some("clear"), _) => Command::Clear,
-        (Some("tick"), _) => Command::Tick,
-        (Some("status"), _) => Command::Status,
-        (Some("credits"), _) => Command::Credits,
-        (Some("inventory"), _) => Command::Inventory,
-        (Some(other), _) => Command::Unknown(other.into()),
-        (None, _) => Command::Empty,
+    match parts.next() {
+        Some("buy") => {
+            let args = parts.collect::<Vec<_>>().join(" ");
+            if args.is_empty() {
+                Command::InvalidUsage("buy".into())
+            } else {
+                Command::Buy(args)
+            }
+        }
+        Some("help") => Command::Help,
+        Some("exit") => Command::Exit,
+        Some("clear") => Command::Clear,
+        Some("tick") => Command::Tick,
+        Some("status") => Command::Status,
+        Some("credits") => Command::Credits,
+        Some("inventory") => Command::Inventory,
+        Some("store") => Command::Store,
+        Some(other) => Command::Unknown(other.into()),
+        None => Command::Empty,
     }
 }
 
@@ -65,7 +75,14 @@ pub fn dispatch(command: Command, state: &mut GameState) -> LoopAction {
         }
         Command::Empty => LoopAction::Continue,
         Command::Buy(item) => {
-            println!("[STORE] PURCHASE REQUEST: {item} (NOT IMPLEMENTED YET)");
+            match state.buy(&item) {
+                Ok(item_kind) => println!(
+                    "[STORE] PURCHASED {item_kind}. CURRENT BALANCE: {} CR",
+                    state.credits()
+                ),
+                Err(err) => println!("[STORE] {err}"),
+            }
+
             LoopAction::Continue
         }
         Command::InvalidUsage(cmd) => {
@@ -89,6 +106,17 @@ pub fn dispatch(command: Command, state: &mut GameState) -> LoopAction {
             print_inventory(state);
             LoopAction::Continue
         }
+        Command::Store => {
+            print_store();
+            LoopAction::Continue
+        }
+    }
+}
+
+fn print_store() {
+    println!("STORE CATALOG:");
+    for item in catalog() {
+        println!("{item}");
     }
 }
 
@@ -178,6 +206,11 @@ mod tests {
     }
 
     #[test]
+    fn parse_buy_zap_gun_returns_buy() {
+        assert_eq!(parse("buy zap gun"), Command::Buy("zap gun".into()));
+    }
+
+    #[test]
     fn parse_buy_without_item_returns_invalid_usage() {
         assert_eq!(parse("buy"), Command::InvalidUsage("buy".into()));
     }
@@ -237,5 +270,16 @@ mod tests {
             dispatch(Command::Inventory, &mut state),
             LoopAction::Continue
         );
+    }
+
+    #[test]
+    fn parse_store_returns_store() {
+        assert_eq!(parse("store"), Command::Store);
+    }
+
+    #[test]
+    fn dispatch_store_returns_loop_continue() {
+        let mut state = GameState::new();
+        assert_eq!(dispatch(Command::Store, &mut state), LoopAction::Continue);
     }
 }
